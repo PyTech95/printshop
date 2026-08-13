@@ -13,8 +13,9 @@ const reasons = [
 ];
 
 const marqueeItems = [
-  "Custom Labels & Ribbons", "Asset Tags", "Offset Printing", "Large Format & Vinyl",
-  "Rack & Shelf Labels", "DTF Printing", "Screen Printing", "Uniform & T-Shirt Printing", "Promotional Items",
+  "Custom Labels & Ribbons", "Asset Tags", "Rack & Shelf Labels", "Offset Printing",
+  "Large Format & Vinyl", "Screen Printing", "DTF Printing", "Uniform & T-Shirt Printing",
+  "Promotional Items", "Engraving Services",
 ];
 
 export const WhyChooseUs = () => {
