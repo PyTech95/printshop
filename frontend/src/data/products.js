@@ -70,7 +70,6 @@ export const IMG = {
 };
 
 export const products = [
-  ,
   {
     slug: "custom-labels-ribbons",
     category: "labels",
@@ -89,7 +88,6 @@ export const products = [
     features: ["Plain labels", "Printed product labels", "Compliance labelling", "Custom printed ribbons"],
     applications: ["Retail products", "Food & beverage", "Cosmetics & pharma", "Logistics & shipping"],
   },
-  ,
   {
     slug: "asset-tags",
     category: "labels",
@@ -135,7 +133,6 @@ export const products = [
     features: ["Rack & beam labels", "Bay & aisle signs", "Magnetic & adhesive", "Barcode & colour-coded"],
     applications: ["Warehouses & 3PL", "Cold stores", "Distribution centres", "Retail stockrooms"],
   },
-  ,
   {
     slug: "offset-printing",
     category: "packaging",
@@ -154,7 +151,6 @@ export const products = [
     features: ["Business cards", "Brochures & flyers", "Booklets & catalogues", "Shopping bags & boxes"],
     applications: ["Corporate branding", "Marketing campaigns", "Events & launches", "Retail & hospitality"],
   },
-  ,
   {
     slug: "large-format-vinyl",
     category: "largeformat",
@@ -173,7 +169,6 @@ export const products = [
     features: ["Banners & posters", "Shop & office signage", "Vinyl stickers & pasting", "Vehicle vinyl wraps"],
     applications: ["Events & exhibitions", "Retail POS", "Construction hoarding", "Fleet & vehicles"],
   },
-  ,
   {
     slug: "screen-printing",
     category: "apparel",
@@ -192,7 +187,6 @@ export const products = [
     features: ["Kraft box branding", "Canvas tote printing", "Garments & uniforms", "Single or multi-colour"],
     applications: ["Retail packaging", "Event merchandise", "Staff uniforms", "Promotional wear"],
   },
-  ,
   {
     slug: "dtf-printing",
     category: "apparel",
@@ -211,7 +205,6 @@ export const products = [
     features: ["Vibrant custom designs", "Small & bulk orders", "Suits many garments", "Durable wash-fast prints"],
     applications: ["Custom T-shirts", "Uniforms & workwear", "Promotional clothing", "Branded apparel"],
   },
-  ,
   {
     slug: "uniform-tshirt-printing",
     category: "apparel",
@@ -230,7 +223,6 @@ export const products = [
     features: ["Corporate uniforms", "Staff T-shirts", "Hi-vis safety vests", "Workwear & branded apparel"],
     applications: ["Companies & offices", "Retail & hospitality", "Events & teams", "Promotions"],
   },
-  ,
   {
     slug: "promotional-items",
     category: "packaging",
@@ -249,7 +241,6 @@ export const products = [
     features: ["Mugs & drinkware", "Pens & keychains", "Canvas tote bags", "Corporate gifts"],
     applications: ["Corporate gifting", "Events & expos", "Employee kits", "Marketing giveaways"],
   },
-  ,
   {
     slug: "engraving-services",
     category: "engraving",
@@ -270,7 +261,7 @@ export const products = [
   },
 ];
 
-export const productBySlug = (slug) => products.find((p) => p.slug === slug);
+export const productBySlug = (slug) => products.find((p) => p && p.slug === slug);
 
 export const industries = [
   { key: "retail", name: "Retail & FMCG", name_ar: "التجزئة والسلع الاستهلاكية", desc: "Product labels, price tags and shelf-ready packaging.", desc_ar: "ملصقات المنتجات وبطاقات الأسعار والتغليف الجاهز للرفوف." },

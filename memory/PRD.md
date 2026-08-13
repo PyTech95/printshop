@@ -95,3 +95,11 @@ See /app/memory/test_credentials.md — admin@mylabelsuae.com / admin123
 - deployment_agent readiness check: PASS (no blockers)
 - Smoke-tested on preview: homepage render, admin login (JWT), enquiry create, protected enquiries list, reviews summary, sitemap.xml — all green
 - NOTE: EMERGENT_EMAIL_KEY not set → enquiry email notifications to sales inbox are skipped (non-blocking; enquiries still save + show in admin). Set the email key if live notifications are needed.
+
+## Bug fix: blank product detail pages (2026-06)
+- Symptom: /products/<slug> deep links (e.g. custom-labels-ribbons) rendered a blank white page ("internal page not open"); reported on production (mylabelsuae.com), reproduced on preview
+- Root cause: `products` array in data/products.js was sparse (stray commas created undefined holes). Array.find in productBySlug visited holes as undefined → "Cannot read properties of undefined (reading 'slug')". Listing pages worked because map/filter skip holes; find does not
+- Fix: removed all stray commas (10 clean product objects, order unchanged) + defensive `p && p.slug === slug` guard in productBySlug. Fixed inflated Gallery "All" count as side effect
+- Also (prior turn): reordered homepage + Why-Choose-Us marquees to match catalogue order and added missing Engraving Services
+- Verified by testing_agent iteration_16: 100% frontend pass, all 10 detail pages render, 0 runtime/console errors
+- NOTE: fix is in PREVIEW only — user must REDEPLOY to push to production (mylabelsuae.com / print-shop-test.emergent.host)
