@@ -1,0 +1,38 @@
+{
+  "summary": "Frontend-only regression for product image asset swap on My Labels UAE. Verified all 10 product detail pages, /products, /gallery, gallery carousel, offset feature copy, admin login, and mobile viewport. Zero broken/failing image requests captured across 54 CDN image responses. All new NEW-CDN URLs (offsetAll, brochuresFlyers, shoppingBags, customBoxes, booklets, labelsRolls, printedLabelSheet, assetTagsGrid/Angled/Laptop/Hand) load with 200 OK.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verifications_passed": [
+    "/products/offset-printing main = offsetAll (c37697ab...), 5 gallery thumbs (combined, brochures/flyers, shopping bags, boxes, booklets), prev/next cycle works",
+    "/products/custom-labels-ribbons main = labelsRolls (5339ffbe...), 4 thumbs load",
+    "/products/asset-tags main = assetTagsGrid (cbc85eb5...), 4 thumbs load",
+    "/products/rak-labels main = printedLabelSheet (780c5751...), 3 thumbs load",
+    "Offset 'What we provide' shows all 4 features: Business cards, Brochures & flyers, Booklets & catalogues, Shopping bags & boxes",
+    "Gallery carousel: clicking gallery-thumb-N swaps gallery-main-image src on every product page (10/10)",
+    "gallery-prev / gallery-next buttons cycle correctly, counter updates (e.g., 1/4 -> 2/4)",
+    "/products and /gallery pages: no broken <img>, /gallery shows 10 gallery-tile-print-portal-ae tiles",
+    "All 10 product detail pages: 0 broken <img> (naturalWidth===0)",
+    "0 image requests with status >=400 across 54 CDN responses",
+    "Admin login (admin@mylabelsuae.com / admin123) → redirects to /admin successfully",
+    "Mobile 390x844 renders offset-printing, custom-labels-ribbons, asset-tags without broken images"
+  ],
+  "console_warnings": [
+    "framer-motion: 'motion() is deprecated. Use motion.create() instead.' — known non-blocking warning, unchanged from prev iterations"
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Optional cleanup: framer-motion deprecation warning appears on every page — main agent may migrate `motion(x)` calls to `motion.create(x)` when convenient, but not blocking."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": "admin@mylabelsuae.com / admin123 (verified working)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Image asset swap iteration verified end-to-end via Playwright with a response listener that watched static.prod-images.emergentagent.com / unsplash / pexels URLs. All product image URLs on NEW CDN (job 0fd45bfd) return 200. Product data structure & gallery carousel testids (gallery-main-image, gallery-thumb-N, gallery-prev, gallery-next, gallery-tile-print-portal-ae) all present and functional."
+}

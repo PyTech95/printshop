@@ -1,0 +1,8 @@
+.App {
+    min-height: 100vh;
+}
+
+@keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}

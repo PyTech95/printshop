@@ -1,0 +1,41 @@
+{
+  "summary": "Frontend-only image-swap regression verified. All 10 product detail pages load with zero broken images and zero failed image requests. Engraving-services no longer references promoNew or assetTagsAngled. DTF/screen-printing/uniform-tshirt-printing/engraving-services main and gallery images are now unique per product. Carousel next/thumb click, counter (1/4 on DTF, 1/3 on uniform), zoom lightbox (button + click-on-main) all functional. Gallery filters (all/labels/packaging/apparel/largeformat) all render; homepage showreel renders 40 tiles. No uncaught console/page errors across /, /products, /gallery, /about, /faq, /contact and all 10 product pages. Mobile 390x844 shows no horizontal overflow on the 4 updated pages.",
+  "gallery_image_urls_per_product": {
+    "engraving-services": {
+      "main": ".../4f409843d7ded69e5d915faadb9de8a4d02875cff4ae8b719e83eefb6e71a147.jpeg (engravePlates)",
+      "gallery": ["engravePlates 4f4098...", "engraveMachine 1f1c88...", "engraveAwards 76a358..."]
+    },
+    "dtf-printing": {
+      "main": ".../5718efce22d920a265149414e4cec3c5558e9b349f33bd5755be28c0eec0a824.jpeg (dtfMachine)",
+      "gallery": ["dtfMachine 5718ef...", "dtfFilms ef994e...", "dtfPress 13519f...", "dtf 022f70..."]
+    },
+    "screen-printing": {
+      "main": ".../d4152deabd0e36705c12e135a06b59270862e5e92b3d0b2f9cde05a564da59a2.jpeg (screenPress)",
+      "gallery": ["screenPress d4152d...", "screenRack 63117b...", "screenPrint 6660ee..."]
+    },
+    "uniform-tshirt-printing": {
+      "main": ".../8292455e8b40bd033290e3c4dad99223b359b72174ced624d7037914afcda50c.jpeg (uniforms)",
+      "gallery": ["uniforms 829245...", "uniformRail 1f4b6a...", "uniformEmbroidery 00d2b2..."]
+    },
+    "uniqueness_check": "PASS - all four main images unique; no gallery set is a duplicate of another; no promo-gift-set hash (d84be1...) or assetTagsAngled (13fcc7...) present on engraving-services."
+  },
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Non-blocking: engraving-services is categorised as 'largeformat' in products.js so it renders under the Large Format gallery filter alongside vinyl banners. Consider adding a dedicated 'engraving' category if this grouping is not desired.",
+    "Known warning (not fixed this iteration): framer-motion 'motion() is deprecated' console warning."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100%"},
+  "test_credentials": "Admin admin@mylabelsuae.com / admin123 (not exercised this iteration - not in scope)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Image-swap iteration verified end-to-end. Filter test-ids on /gallery use keys ['all','labels','packaging','apparel','largeformat'] (no dash in largeformat). ProductGallery test-ids: gallery-main-image, gallery-thumb-N (0-indexed), gallery-prev, gallery-next, gallery-zoom-btn, image-lightbox, lightbox-image. Showreel has 40 tiles (5 rows x 8) generated from products[].gallery.slice(0,2)."
+}

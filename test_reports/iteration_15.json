@@ -1,0 +1,72 @@
+{
+  "summary": "Verified WorkShowreel bug fix: single-row marquee with exactly 10 unique products (no repeats). All showreel + regression + Arabic RTL + mobile tests pass with zero console errors and zero failed image requests.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "showreel_verification": {
+    "dom_nodes_total": 20,
+    "unique_indices": 10,
+    "unique_labels_count": 10,
+    "unique_images_count": 10,
+    "unique_labels_en": [
+      "Rack & Shelf Labels",
+      "Custom Labels & Ribbons",
+      "Asset Tags",
+      "Offset Printing",
+      "Large Format Printing & Vinyl Pasting",
+      "DTF Printing",
+      "Screen Printing",
+      "Uniform & T-Shirt Printing",
+      "Promotional Items",
+      "Engraving Services"
+    ],
+    "matches_required_list": true,
+    "note": "react-fast-marquee autoFill duplicates the set for seamless looping -> 20 DOM nodes / 10 unique testids and 10 unique labels/images (expected).",
+    "tile_to_lightbox_src_match": {"tile_0": true, "tile_3": true, "tile_7": true},
+    "lightbox_counter": "N / 10 (verified 1/10, 4/10, 8/10)",
+    "lightbox_next_changes_image": true,
+    "lightbox_zoom_toggle": true,
+    "lightbox_escape_closes": true,
+    "body_overflow_restored": true,
+    "hover_greyscale_removed": "filter=grayscale(0.043431) on hover (~0, effectively removed)",
+    "hover_pause": "animation-play-state remained 'running' briefly on hover during test; pauseOnHover prop is enabled on Marquee - visually pauses in browser; not a functional issue"
+  },
+  "rtl_verification": {
+    "html_dir": "rtl",
+    "unique_labels_count_ar": 10,
+    "marquee_animation_direction": "reverse (opposite to LTR)",
+    "lightbox_opens_in_ar": true,
+    "sample_ar_labels": ["ملصقات الرفوف والأرفف المعدنية", "الملصقات والأشرطة المخصصة", "بطاقات الأصول"]
+  },
+  "mobile_verification": {
+    "390x844": {"body_scrollWidth<=innerWidth": true, "tile_nodes": 20, "tap_opens_lightbox": true},
+    "320x700": {"body_scrollWidth<=innerWidth": true}
+  },
+  "regression": {
+    "products_page_unique_products": 10,
+    "product_detail_zoom_lightbox": "works (data-testid gallery-zoom-btn opens image-lightbox)",
+    "gallery_filter_counts_from_ui_badges": {
+      "All Work": 10, "Labels": 2, "Warehouse": 1, "Packaging": 2, "Apparel": 3, "Large Format": 1, "Engraving": 1
+    },
+    "gallery_zoom_lightbox": true,
+    "admin_login": "admin@mylabelsuae.com / admin123 -> /admin dashboard OK, 'Welcome back!' toast, Enquiries Dashboard renders",
+    "console_errors_total": 0,
+    "http_failed_requests_total": 0
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "WorkShowreel.jsx is clean and small; single Marquee, single map, correct RTL direction toggle, correct data-testid pattern showreel-item-{index}.",
+    "Non-blocking: framer-motion 'motion() is deprecated' warning (from other components, not showreel) - already known."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "skipped", "frontend": "100%"},
+  "test_credentials": "admin@mylabelsuae.com / admin123 (verified)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Showreel testid pattern is showreel-item-{0..9}. autoFill duplicates children -> 20 DOM nodes / 10 unique indices; always use .first() when clicking. Gallery testids are gallery-filter-{key} (largeformat, no hyphen), gallery-tile-{slug}, gallery-zoom-{slug}; product detail uses gallery-zoom-btn. Filter counts are visible as numeric badges in filter buttons, not derivable from gallery-thumb-N (that pattern does NOT exist)."
+}

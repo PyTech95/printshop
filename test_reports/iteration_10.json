@@ -1,0 +1,23 @@
+{
+  "summary": "Frontend-only testing of the new Home Showreel feature. Verified section rendering, two opposite-direction marquees with pauseOnHover, tile→lightbox open with matching src, counter '1 / 20', next/prev/zoom/close/Escape/backdrop-click, body overflow restoration, Arabic RTL localisation, mobile (390x844) with no horizontal overflow, and regressions on gallery + admin login. All checks passed with zero console errors and zero failed image requests.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "WorkShowreel.jsx line 41 uses showreel.findIndex((s)=>s.img===item.img). If two products share the same image URL (currently none), the lightbox would open the earlier match — consider mapping by a stable id or precomputed index at build time.",
+    "Known non-blocking warning: framer-motion 'motion() is deprecated' (pre-existing, not from showreel)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested", "frontend": "100%"},
+  "test_credentials": "admin@mylabelsuae.com / admin123 (verified working, redirects to /admin)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Showreel builds 20 items (10 products × 2 gallery images). Rows split by parity → 10 per row; react-fast-marquee autoFill duplicates DOM so ~20 nodes per testid pattern exist — use .first() or JS click via evaluate() since tiles animate off-viewport (Playwright's normal click on `showreel-item-1-2` failed once with 'outside viewport'; using page.evaluate(tile.click()) works). Lightbox counter shows total=20. Verified: heading EN 'Print that speaks for itself' / AR 'طباعة تتحدث عن نفسها', html[dir]=rtl in Arabic, body scroll restored to '' after close, backdrop + Escape + close button all close lightbox, mobile scrollWidth==innerWidth (no horizontal overflow), 0 image 4xx/5xx, 0 console errors, admin login → /admin still works, /gallery still renders in AR.",
+  "rca of the issue": "No issues found."
+}

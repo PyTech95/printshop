@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://emirates-prints.preview.emergentagent.com/api/sitemap.xml
+Sitemap: https://emirates-prints.preview.emergentagent.com/sitemap.xml

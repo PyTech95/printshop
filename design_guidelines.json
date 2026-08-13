@@ -1,0 +1,114 @@
+{
+  "project_context": {
+    "brand_name": "My Labels UAE",
+    "company_name": "My Labels Packaging Materials Manufacturing L.L.C.",
+    "contact_info": {
+      "phones": ["+971 561159894", "+971 56 834 8960"],
+      "email": "sales@mylabelsuae.com",
+      "location": "Dubai, UAE"
+    },
+    "theme": "Light Theme",
+    "app_type": "marketing_site",
+    "primary_emotion": "Trustworthy, Authoritative, Precise, Industrial, Fast"
+  },
+  "typography": {
+    "fonts": {
+      "heading": "Cabinet Grotesk",
+      "body": "IBM Plex Sans",
+      "install_instructions": "Import these from Google Fonts or Fontshare in index.css"
+    },
+    "rules": {
+      "hierarchy": "H1 up to text-5xl/6xl with tracking-tighter, H2 text-4xl. Body text-base. Overlines/labels text-xs uppercase tracking-[0.2em].",
+      "weight_contrast": "Use font-black for major headings, font-normal for body."
+    }
+  },
+  "colors": {
+    "primary": {
+      "DEFAULT": "#E60000",
+      "hover": "#CC0000",
+      "foreground": "#FFFFFF"
+    },
+    "background": {
+      "base": "#FFFFFF",
+      "panel": "#F8FAFC",
+      "accent_dark": "#0A0A0A"
+    },
+    "text": {
+      "main": "#0A0A0A",
+      "muted": "#475569"
+    }
+  },
+  "visual_enhancers": {
+    "surfaces": "Grid Borders (The 'Technical' Look): Expose the skeleton for product catalogs using border-collapse or tight grid borders (border-border/40). Solid white surfaces for containers.",
+    "borders": "1px solid borders using border-gray-200. No heavy glassmorphism for this B2B site.",
+    "shadows": "Minimal. Use sharp, small offset shadows or hard borders instead of soft diffuse shadows."
+  },
+  "components": {
+    "buttons": "Sharp rectangular (rounded-none) or very slightly rounded (rounded-sm) buttons. Primary CTA must be Brand Red. Hover states -translate-y-1.",
+    "cards": "Flat cards with 1px border. No default shadows.",
+    "navigation": "Sticky top bar, solid white background, border-b. NO transparent nav.",
+    "forms": "Use Shadcn Inputs and Textareas, strip 'Vercel-look', apply square corners and Red focus ring."
+  },
+  "layouts": {
+    "hero": "Split layout or an aggressive left-aligned aesthetic. Darkened image of Dubai skyline/printing press on one side, bold text + Red CTA on the left.",
+    "products_grid": "Bento Grid Protocol. High density grid for data, slightly looser (gap-8) for marketing products.",
+    "spacing": "Generous spacing philosophy (py-24 or py-32 for sections, p-8 for containers). Avoid cramped layouts."
+  },
+  "motion": {
+    "interactions": "Hover states on all interactive elements. Buttons lift slightly.",
+    "page_load": "Staggered fade-in via framer-motion.",
+    "scrolling": "Use lenis for smooth scrolling."
+  },
+  "accessibility": {
+    "contrast": "Red (#E60000) on White ensures APCA compliance. Ensure text on images has dark overlays.",
+    "testing_attributes": "All interactive and key informational elements MUST include a data-testid attribute in kebab-case format."
+  },
+  "image_urls": [
+    {
+      "url": "https://images.pexels.com/photos/36559330/pexels-photo-36559330.jpeg",
+      "category": "Hero / Background / Capabilities",
+      "description": "Industrial printing press showing technical precision"
+    },
+    {
+      "url": "https://images.unsplash.com/photo-1577705998148-6da4f3963bc8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwzfHxjdXN0b20lMjBjYXJkYm9hcmQlMjBwYWNrYWdpbmclMjBib3hlc3xlbnwwfHx8fDE3ODQ0NzEzOTB8MA&ixlib=rb-4.1.0&q=85",
+      "category": "Products Showcase",
+      "description": "Custom cardboard packaging boxes"
+    },
+    {
+      "url": "https://images.unsplash.com/photo-1571907483086-3c0ea40cc16d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHwyfHxiYXJjb2RlJTIwbGFiZWxzJTIwdGFnc3xlbnwwfHx8fDE3ODYzNTg2OTZ8MA&ixlib=rb-4.1.0&q=85",
+      "category": "Products Showcase",
+      "description": "Barcode tags and labels"
+    },
+    {
+      "url": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODR8MHwxfHNlYXJjaHwxfHxkdWJhaSUyMGJ1c2luZXNzJTIwc2t5bGluZSUyMHN1bnNldHxlbnwwfHx8fDE3ODYzNTg2OTZ8MA&ixlib=rb-4.1.0&q=85",
+      "category": "About Us / Location / Contact",
+      "description": "Dubai Business Skyline at Sunset"
+    },
+    {
+      "url": "https://images.unsplash.com/photo-1637603460319-ca8db4cccb06?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzF8MHwxfHNlYXJjaHwyfHxicmFuZGVkJTIwcHJvbW90aW9uYWwlMjBtZXJjaGFuZGlzZSUyMGZsYXRsYXl8ZW58MHx8fHwxNzg2MTA1ODMxfDA&ixlib=rb-4.1.0&q=85",
+      "category": "Products Showcase",
+      "description": "Promotional merchandise flatlay"
+    }
+  ],
+  "libraries": {
+    "icons": "lucide-react",
+    "animation": "framer-motion, react-fast-marquee",
+    "ui": "shadcn (for forms, toast, dropdowns)"
+  },
+  "instructions_to_main_agent": [
+    "Build standard React (.js/.jsx) pages. Do not use TypeScript (.tsx).",
+    "Integrate a floating WhatsApp button fixed to the bottom right (using +971 561159894) that stays above content.",
+    "Implement the 'Why Choose Us' or 'Clients' section using a slow, seamless react-fast-marquee.",
+    "Build an RFQ (Request a Quote) section with Shadcn forms. Make sure forms use strict grid layouts.",
+    "Apply data-testid to every button, form input, and nav link (e.g., data-testid='hero-cta-btn').",
+    "Ensure Header has a solid background. Never use transparent header backgrounds over content.",
+    "Follow the B2B industrial aesthetics: stark white/gray base, bold red interactions, high contrast."
+  ],
+  "universal_guidelines": [
+    "Do not use generic centered layouts or simplistic gradients.",
+    "Create depth through layout contrast rather than just shadows.",
+    "Do not apply universal transition: all. Use specific targeted transitions.",
+    "Never use emoji characters as icons.",
+    "Use sonner for toast notifications."
+  ]
+}
