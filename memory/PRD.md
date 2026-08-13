@@ -103,3 +103,11 @@ See /app/memory/test_credentials.md — admin@mylabelsuae.com / admin123
 - Also (prior turn): reordered homepage + Why-Choose-Us marquees to match catalogue order and added missing Engraving Services
 - Verified by testing_agent iteration_16: 100% frontend pass, all 10 detail pages render, 0 runtime/console errors
 - NOTE: fix is in PREVIEW only — user must REDEPLOY to push to production (mylabelsuae.com / print-shop-test.emergent.host)
+
+## Admin password change (2026-06)
+- Set admin password to mylabels@1425 (email admin@mylabelsuae.com) via ADMIN_PASSWORD in backend/.env
+- Added POST /api/auth/change-password (authenticated): verifies current password, requires >=6 chars, rejects same-as-current, updates bcrypt hash and sets password_changed:true
+- Made seed_admin idempotent: it only syncs the .env password while password_changed is falsy, so an in-app password change now survives backend restarts/redeploys
+- Added Admin dashboard "Security" tab -> components/ChangePasswordPanel.jsx (current/new/confirm fields, client-side match + length checks, sonner toasts)
+- Verified: backend via curl (wrong pw 400, change ok, login with new pw ok, reverted) + testing_agent iteration_17 (100% frontend pass, password left as mylabels@1425)
+- NOTE: changes are in PREVIEW only — user must REDEPLOY to apply on production (mylabelsuae.com). On first deploy the live DB admin will sync to mylabels@1425 automatically.

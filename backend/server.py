@@ -83,6 +83,11 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
 class EnquiryCreate(BaseModel):
     name: str
     email: EmailStr
@@ -180,6 +185,23 @@ async def login(payload: LoginRequest):
 @api_router.get("/auth/me")
 async def me(user: dict = Depends(get_current_user)):
     return user
+
+
+@api_router.post("/auth/change-password")
+async def change_password(payload: ChangePasswordRequest, user: dict = Depends(get_current_user)):
+    if len(payload.new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+    full = await db.users.find_one({"id": user["id"]})
+    if not full or not verify_password(payload.current_password, full["password_hash"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if verify_password(payload.new_password, full["password_hash"]):
+        raise HTTPException(status_code=400, detail="New password must be different from the current password")
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"password_hash": hash_password(payload.new_password), "password_changed": True}},
+    )
+    logger.info(f"Password changed for {user['email']}")
+    return {"message": "Password updated successfully"}
 
 
 @api_router.post("/enquiries", response_model=Enquiry)
@@ -423,12 +445,14 @@ async def seed_admin():
             "password_hash": hash_password(admin_password),
             "name": "Admin",
             "role": "admin",
+            "password_changed": False,
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
         logger.info(f"Seeded admin: {admin_email}")
-    elif not verify_password(admin_password, existing["password_hash"]):
+    elif not existing.get("password_changed") and not verify_password(admin_password, existing["password_hash"]):
+        # Sync password from .env only until the admin changes it in-app
         await db.users.update_one({"email": admin_email}, {"$set": {"password_hash": hash_password(admin_password)}})
-        logger.info(f"Updated admin password: {admin_email}")
+        logger.info(f"Synced admin password from env: {admin_email}")
 
 
 @app.on_event("shutdown")

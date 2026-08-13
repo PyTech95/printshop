@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/auth/AuthContext";
 import { SeoSettingsPanel } from "@/components/SeoSettingsPanel";
+import { ChangePasswordPanel } from "@/components/ChangePasswordPanel";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -61,9 +62,11 @@ export default function AdminPage() {
         <div className="flex gap-1 mb-8 border-b border-border">
           <button data-testid="tab-enquiries" onClick={() => setTab("enquiries")} className={tabCls("enquiries")}>Enquiries</button>
           <button data-testid="tab-seo" onClick={() => setTab("seo")} className={tabCls("seo")}>SEO Settings</button>
+          <button data-testid="tab-security" onClick={() => setTab("security")} className={tabCls("security")}>Security</button>
         </div>
 
         {tab === "seo" && <SeoSettingsPanel token={token} />}
+        {tab === "security" && <ChangePasswordPanel token={token} />}
 
         {tab === "enquiries" && (<>
         <div className="grid sm:grid-cols-3 gap-4 mb-8">
