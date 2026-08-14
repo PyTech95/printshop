@@ -54,20 +54,38 @@ export const applySeo = (s) => {
   setCanonical(s.canonical_url);
 };
 
+// Per-page SEO applied centrally from admin-managed settings, keyed by exact pathname.
+let pageSeoMap = null;
+let pageSeoPromise = null;
+let managedPath = null; // current static route path being managed centrally
+
+// Single source of truth for what SEO is shown, resolved from current state.
+// Priority: dynamic page (pageActive) > per-page managed entry > site defaults.
+const applyResolved = () => {
+  if (pageActive) return; // dynamic detail pages control their own SEO
+  const entry = managedPath && pageSeoMap ? pageSeoMap[managedPath] : null;
+  if (entry) {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    applySeo({ ...(defaults || {}), ...entry, canonical_url: `${origin}${managedPath}` });
+  } else if (defaults) {
+    applySeo(defaults);
+  }
+};
+
 export const setDefaults = (s) => {
   defaults = s;
-  if (!pageActive) applySeo(s);
+  applyResolved();
 };
 
 const loadDefaults = async () => {
   if (defaults) {
-    if (!pageActive) applySeo(defaults);
+    applyResolved();
     return defaults;
   }
   try {
     const { data } = await axios.get(`${API}/seo`);
     defaults = data;
-    if (!pageActive) applySeo(data);
+    applyResolved();
   } catch (e) {
     /* ignore */
   }
@@ -81,7 +99,41 @@ export const useSeoSettings = () => {
   }, []);
 };
 
-// Per-page SEO override (falls back to site defaults for missing fields)
+const loadPageSeoMap = async () => {
+  if (pageSeoMap) return pageSeoMap;
+  if (!pageSeoPromise) {
+    pageSeoPromise = axios
+      .get(`${API}/seo/pages`)
+      .then(({ data }) => {
+        pageSeoMap = data.pages || {};
+        return pageSeoMap;
+      })
+      .catch(() => {
+        pageSeoMap = {};
+        return pageSeoMap;
+      });
+  }
+  return pageSeoPromise;
+};
+
+// Refresh the cached per-page SEO map (called after admin saves so the SPA
+// reflects changes without a full reload).
+export const setPageSeoMap = (map) => {
+  pageSeoMap = map || {};
+  applyResolved();
+};
+
+// Applies admin-managed SEO for static routes. Dynamic pages (product/area detail)
+// keep using usePageSeo directly, which takes precedence via the pageActive flag.
+export const useManagedPageSeo = (pathname) => {
+  useEffect(() => {
+    managedPath = pathname;
+    applyResolved(); // apply immediately if caches are already warm
+    loadPageSeoMap().then(() => applyResolved());
+  }, [pathname]);
+};
+
+// Per-page SEO override for dynamic pages (falls back to site defaults for missing fields)
 export const usePageSeo = (seo) => {
   const key = JSON.stringify(seo || {});
   useEffect(() => {
@@ -97,7 +149,7 @@ export const usePageSeo = (seo) => {
     return () => {
       pageActive = false;
       setJsonLd([]);
-      if (defaults) applySeo(defaults);
+      applyResolved();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);

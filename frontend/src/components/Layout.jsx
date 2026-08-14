@@ -3,13 +3,15 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActions } from "@/components/FloatingActions";
+import { LeadPopup } from "@/components/LeadPopup";
 import { useLenis } from "@/hooks/useLenis";
-import { useSeoSettings } from "@/hooks/useSeoSettings";
+import { useSeoSettings, useManagedPageSeo } from "@/hooks/useSeoSettings";
 
 export const Layout = () => {
   const { pathname } = useLocation();
   useLenis();
   useSeoSettings();
+  useManagedPageSeo(pathname);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
@@ -23,6 +25,7 @@ export const Layout = () => {
       </main>
       <Footer />
       <FloatingActions />
+      <LeadPopup />
     </div>
   );
 };

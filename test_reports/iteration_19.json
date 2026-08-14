@@ -1,0 +1,42 @@
+{
+  "summary": "Retest of iteration_18 HIGH bug — per-page SEO application on static routes. FIX CONFIRMED. All 9 static routes now show unique, page-appropriate document.title and unique meta descriptions. SPA live-update via setPageSeoMap works: admin change to About title reflected immediately when navigating via nav link, without full reload. Dynamic product page (/products/custom-labels-ribbons) still takes precedence over per-page SEO. Popup regression passes (shows after delay, dismiss sets ml_lead_popup_seen, no reappear on reload). Admin tabs render; SEO/Popup saves succeed. Cleanup performed: About title restored to default; popup delay_seconds restored to 15.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "per_page_seo_titles": {
+      "/": "My Labels UAE | Printing, Labels & Packaging in Dubai, Al Ain, Fujairah & RAK",
+      "/products": "Products & Services | Printing, Labels & Packaging — My Labels UAE",
+      "/about": "About Us | Dubai Printing & Packaging Manufacturer — My Labels UAE",
+      "/contact": "Contact & Request a Quote | My Labels UAE — Dubai",
+      "/gallery": "Gallery | Our Printing, Labels & Packaging Work — My Labels UAE",
+      "/industries": "Industries We Serve | Labels, Printing & Packaging — My Labels UAE",
+      "/why-choose-us": "Why Choose Us | Trusted Printing & Packaging in Dubai — My Labels UAE",
+      "/faq": "FAQ | Printing, Turnaround & Ordering — My Labels UAE",
+      "/market-areas": "Market Areas We Serve — Printing in Dubai, Al Ain, Fujairah & RAK | My Labels UAE"
+    },
+    "unique_titles": "9/9",
+    "unique_descriptions": "9/9",
+    "product_dynamic_title": "Custom Labels & Ribbons in UAE | My Labels UAE (product-specific — dynamic SEO precedence OK)",
+    "spa_live_update": "PASS — After admin save of About title to 'TEST About Title RETEST 2026', SPA nav to /about (without full reload) reflected the new title. setPageSeoMap cache refresh works.",
+    "popup_flow": "PASS — with delay=2 and cleared ml_lead_popup_seen, popup appeared after ~4s, Escape (Radix Dialog dismiss) closed it and set localStorage flag=1, reload did NOT re-open popup.",
+    "admin_tabs": "5 tabs visible in DOM (Enquiries, SEO Settings, Page SEO, Popup, Security). tab-page-seo, tab-popup, tab-security have data-testid; tab-enquiries and tab-seo-settings did not resolve via data-testid selector (visible in UI though). Minor testability nit — not blocking.",
+    "seo_settings_save": "PASS"
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor testability: Enquiries and SEO Settings admin tabs are visible in UI but did not respond to data-testid selectors 'tab-enquiries' / 'tab-seo-settings' in playwright — verify these testids are actually rendered so future e2e can target all 5 tabs uniformly.",
+    "useSeoSettings.js applyResolved() refactor is clean and correctly makes per-page SEO win regardless of fetch-completion order. pageActive flag correctly gates dynamic pages from being overridden."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only retest)", "frontend": "100%"},
+  "test_credentials": "admin@mylabelsuae.com / mylabels@1425",
+  "seed_data_creation": "None. Temporarily set About page_title to 'TEST About Title RETEST 2026' and popup delay_seconds=2 during testing; both restored to original values before finish.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration_18 HIGH bug (per-page SEO not applying due to global-defaults race overriding per-page title) is now fully fixed. useSeoSettings.js applyResolved() centralises resolution and setPageSeoMap invalidates cache after admin save. No further regressions found. Backend not retested this iteration — see iteration_18 for backend regression (100%)."
+}

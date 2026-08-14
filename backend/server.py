@@ -7,7 +7,7 @@ from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
-from typing import List, Optional
+from typing import List, Optional, Dict
 from datetime import datetime, timezone, timedelta
 import os
 import logging
@@ -291,6 +291,160 @@ async def update_seo(payload: SeoSettings, user: dict = Depends(get_current_user
     value = payload.model_dump()
     value["updated_at"] = datetime.now(timezone.utc).isoformat()
     await db.settings.update_one({"key": "seo"}, {"$set": {"key": "seo", "value": value}}, upsert=True)
+    return value
+
+
+# ---------------- Per-page SEO ----------------
+PAGE_META = [
+    {"path": "/", "name": "Home"},
+    {"path": "/products", "name": "Products"},
+    {"path": "/industries", "name": "Industries"},
+    {"path": "/why-choose-us", "name": "Why Choose Us"},
+    {"path": "/gallery", "name": "Gallery"},
+    {"path": "/about", "name": "About"},
+    {"path": "/faq", "name": "FAQ"},
+    {"path": "/contact", "name": "Contact"},
+    {"path": "/market-areas", "name": "Market Areas"},
+]
+
+DEFAULT_PAGE_SEO = {
+    "/": {
+        "site_title": "My Labels UAE | Printing, Labels & Packaging in Dubai, Al Ain, Fujairah & RAK",
+        "meta_description": "My Labels UAE — precision printing, custom labels, asset tags, offset & large-format printing, DTF, screen printing, uniforms and promotional items across Dubai, Al Ain, Fujairah and Ras Al Khaimah. Always On Time.",
+        "meta_keywords": "printing Dubai, custom labels UAE, asset tags, offset printing, large format printing, DTF printing, screen printing, promotional items, packaging Dubai",
+        "og_title": "My Labels UAE — Printing, Labels & Packaging across the UAE",
+        "og_description": "Custom labels, asset tags, offset & large-format printing, DTF, screen printing, apparel and promotional items. Serving Dubai, Al Ain, Fujairah & RAK.",
+    },
+    "/products": {
+        "site_title": "Products & Services | Printing, Labels & Packaging — My Labels UAE",
+        "meta_description": "Explore our full range: custom labels & ribbons, asset tags, rack & shelf labels, offset & large-format printing, screen & DTF printing, uniforms, promotional items and engraving. Made in-house in Dubai.",
+        "meta_keywords": "printing products Dubai, custom labels, asset tags, rack labels, offset printing, DTF printing, screen printing, engraving UAE",
+        "og_title": "Our Complete Range of Printing & Packaging — My Labels UAE",
+        "og_description": "A complete catalogue of printing and packaging solutions manufactured in-house and customised to your requirements.",
+    },
+    "/industries": {
+        "site_title": "Industries We Serve | Labels, Printing & Packaging — My Labels UAE",
+        "meta_description": "Tailored labelling, printing and packaging for retail & FMCG, food & beverage, logistics, manufacturing, pharmaceutical and events across the UAE.",
+        "meta_keywords": "printing for retail, food labels UAE, logistics asset tags, pharmaceutical labels, manufacturing labels Dubai",
+        "og_title": "Solutions Built for Your Sector — My Labels UAE",
+        "og_description": "We understand the labelling, printing and packaging demands of the industries that power the UAE economy.",
+    },
+    "/why-choose-us": {
+        "site_title": "Why Choose Us | Trusted Printing & Packaging in Dubai — My Labels UAE",
+        "meta_description": "In-house manufacturing, competitive direct pricing, precision technology and reliable, always-on-time delivery. The reasons UAE businesses choose My Labels UAE.",
+        "meta_keywords": "best printing company Dubai, reliable printing UAE, in-house label manufacturer, on-time printing delivery",
+        "og_title": "Precision You Can Trust — My Labels UAE",
+        "og_description": "Quality assurance, competitive prices and always-on-time delivery for printing and packaging across the UAE.",
+    },
+    "/gallery": {
+        "site_title": "Gallery | Our Printing, Labels & Packaging Work — My Labels UAE",
+        "meta_description": "A showcase of labels, packaging, apparel, large-format and engraving work produced for brands across the UAE by My Labels UAE.",
+        "meta_keywords": "printing portfolio Dubai, label samples, packaging gallery, apparel printing UAE",
+        "og_title": "A Showcase of Precision — My Labels UAE",
+        "og_description": "A glimpse of the labels, packaging and print we produce for brands across the UAE.",
+    },
+    "/about": {
+        "site_title": "About Us | Dubai Printing & Packaging Manufacturer — My Labels UAE",
+        "meta_description": "My Labels Packaging Materials Manufacturing L.L.C. is a Dubai-based label, offset and digital printing manufacturer combining precision, competitive pricing and on-time delivery.",
+        "meta_keywords": "about My Labels UAE, printing manufacturer Dubai, packaging company UAE",
+        "og_title": "A Trusted Printing & Packaging Partner in Dubai",
+        "og_description": "From a single roll of labels to full packaging production lines — we help UAE businesses brand and package with confidence.",
+    },
+    "/faq": {
+        "site_title": "FAQ | Printing, Turnaround & Ordering — My Labels UAE",
+        "meta_description": "Answers on turnaround times, custom sizes, minimum order quantities, ribbon compatibility, UAE-wide delivery and design help from My Labels UAE.",
+        "meta_keywords": "printing FAQ Dubai, label order questions, turnaround time printing UAE",
+        "og_title": "Frequently Asked Questions — My Labels UAE",
+        "og_description": "Everything you need to know before you order labels, printing and packaging.",
+    },
+    "/contact": {
+        "site_title": "Contact & Request a Quote | My Labels UAE — Dubai",
+        "meta_description": "Request a quote for labels, printing and packaging. Call, WhatsApp or send your requirements and our Dubai team will reply fast with pricing and lead times.",
+        "meta_keywords": "printing quote Dubai, contact printing company UAE, request label quote",
+        "og_title": "Let's Talk About Your Project — My Labels UAE",
+        "og_description": "Tell us what you need and our team will get back with pricing and lead times — fast.",
+    },
+    "/market-areas": {
+        "site_title": "Market Areas | Printing Services across Dubai, Al Ain, Fujairah & RAK",
+        "meta_description": "Professional printing, labels, apparel and large-format solutions across key business areas in Dubai, Al Ain, Fujairah and Ras Al Khaimah.",
+        "meta_keywords": "printing Dubai areas, printing Al Ain, printing Fujairah, printing Ras Al Khaimah, RAK labels",
+        "og_title": "Areas We Serve Across the UAE — My Labels UAE",
+        "og_description": "Printing, labels, promotional products and large-format solutions across key UAE business and commercial areas.",
+    },
+}
+
+PAGE_SEO_FIELDS = {"site_title", "meta_description", "meta_keywords", "og_title", "og_description"}
+
+
+class PageSeoUpdate(BaseModel):
+    pages: Dict[str, Dict[str, str]]
+
+
+@api_router.get("/seo/pages")
+async def get_page_seo():
+    doc = await db.settings.find_one({"key": "page_seo"}, {"_id": 0})
+    stored = (doc or {}).get("value", {}) or {}
+    merged = {}
+    for path, dflt in DEFAULT_PAGE_SEO.items():
+        merged[path] = {**dflt, **(stored.get(path) or {})}
+    return {"pages": merged, "meta": PAGE_META}
+
+
+@api_router.put("/seo/pages")
+async def update_page_seo(payload: PageSeoUpdate, user: dict = Depends(get_current_user)):
+    clean = {}
+    for path in DEFAULT_PAGE_SEO:
+        entry = payload.pages.get(path)
+        if isinstance(entry, dict):
+            clean[path] = {k: str(v) for k, v in entry.items() if k in PAGE_SEO_FIELDS}
+    await db.settings.update_one(
+        {"key": "page_seo"},
+        {"$set": {"key": "page_seo", "value": clean, "updated_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    merged = {}
+    for path, dflt in DEFAULT_PAGE_SEO.items():
+        merged[path] = {**dflt, **(clean.get(path) or {})}
+    return {"pages": merged, "meta": PAGE_META}
+
+
+# ---------------- Popup / lead-capture settings ----------------
+DEFAULT_POPUP = {
+    "enabled": True,
+    "delay_seconds": 15,
+    "headline": "Request a Free Quote",
+    "headline_ar": "اطلب عرض سعر مجاني",
+    "subtext": "Leave your details and our team will get back fast with pricing and lead times.",
+    "subtext_ar": "اترك بياناتك وسيعاود فريقنا التواصل بسرعة مع الأسعار ومواعيد التسليم.",
+    "button_label": "Get My Quote",
+    "button_label_ar": "احصل على عرض السعر",
+}
+
+
+class PopupSettings(BaseModel):
+    enabled: bool = True
+    delay_seconds: int = 15
+    headline: str = DEFAULT_POPUP["headline"]
+    headline_ar: str = DEFAULT_POPUP["headline_ar"]
+    subtext: str = DEFAULT_POPUP["subtext"]
+    subtext_ar: str = DEFAULT_POPUP["subtext_ar"]
+    button_label: str = DEFAULT_POPUP["button_label"]
+    button_label_ar: str = DEFAULT_POPUP["button_label_ar"]
+
+
+@api_router.get("/popup")
+async def get_popup():
+    doc = await db.settings.find_one({"key": "popup"}, {"_id": 0})
+    if not doc:
+        return DEFAULT_POPUP
+    return {**DEFAULT_POPUP, **(doc.get("value", {}) or {})}
+
+
+@api_router.put("/popup")
+async def update_popup(payload: PopupSettings, user: dict = Depends(get_current_user)):
+    value = payload.model_dump()
+    value["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.settings.update_one({"key": "popup"}, {"$set": {"key": "popup", "value": value}}, upsert=True)
     return value
 
 

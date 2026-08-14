@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/auth/AuthContext";
 import { SeoSettingsPanel } from "@/components/SeoSettingsPanel";
 import { ChangePasswordPanel } from "@/components/ChangePasswordPanel";
+import { PageSeoPanel } from "@/components/PageSeoPanel";
+import { PopupSettingsPanel } from "@/components/PopupSettingsPanel";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -17,7 +19,7 @@ export default function AdminPage() {
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("enquiries");
-  const tabCls = (k) => `px-4 py-2.5 text-sm font-semibold -mb-px border-b-2 transition-colors ${tab === k ? "border-primary text-primary" : "border-transparent text-foreground/60 hover:text-foreground"}`;
+  const tabCls = (k) => `px-4 py-2.5 text-sm font-semibold -mb-px border-b-2 transition-colors whitespace-nowrap ${tab === k ? "border-primary text-primary" : "border-transparent text-foreground/60 hover:text-foreground"}`;
 
   useEffect(() => {
     if (user === false) navigate("/login");
@@ -59,13 +61,17 @@ export default function AdminPage() {
       </header>
 
       <main className="max-w-[1400px] mx-auto px-5 lg:px-8 py-10">
-        <div className="flex gap-1 mb-8 border-b border-border">
+        <div className="flex gap-1 mb-8 border-b border-border overflow-x-auto">
           <button data-testid="tab-enquiries" onClick={() => setTab("enquiries")} className={tabCls("enquiries")}>Enquiries</button>
           <button data-testid="tab-seo" onClick={() => setTab("seo")} className={tabCls("seo")}>SEO Settings</button>
+          <button data-testid="tab-page-seo" onClick={() => setTab("page-seo")} className={tabCls("page-seo")}>Page SEO</button>
+          <button data-testid="tab-popup" onClick={() => setTab("popup")} className={tabCls("popup")}>Popup</button>
           <button data-testid="tab-security" onClick={() => setTab("security")} className={tabCls("security")}>Security</button>
         </div>
 
         {tab === "seo" && <SeoSettingsPanel token={token} />}
+        {tab === "page-seo" && <PageSeoPanel token={token} />}
+        {tab === "popup" && <PopupSettingsPanel token={token} />}
         {tab === "security" && <ChangePasswordPanel token={token} />}
 
         {tab === "enquiries" && (<>

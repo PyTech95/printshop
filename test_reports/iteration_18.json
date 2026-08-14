@@ -1,0 +1,32 @@
+{
+  "summary": "Backend (7/7 pytest) and Frontend E2E of Page SEO, Popup, and responsiveness completed. Backend endpoints /api/seo/pages and /api/popup all working (GET public, PUT auth-protected, persistence verified, About restore verified). Popup end-to-end works perfectly: 5 admin tabs render, popup panel saves & persists, popup appears on public site at 390px & 1920px, close (X) sets ml_lead_popup_seen and prevents reappear on reload, form submits create enquiry with product 'Website Popup Enquiry' visible in admin. CRITICAL BUG FOUND: per-page SEO override (useManagedPageSeo) is NOT applied on any static route on the public site — all static pages (/, /products, /about, /contact, /gallery, /industries, /why-choose-us, /faq) show the SAME global title from /api/seo. Only dynamic pages using usePageSeo (product detail, /market-areas) apply their own SEO. Root cause: race condition in /app/frontend/src/hooks/useSeoSettings.js — useSeoSettings() and useManagedPageSeo() both run in Layout as parallel async fetches; whichever resolves LAST wins because both call applySeo() unconditionally when !pageActive. The /api/seo defaults response almost always resolves after /api/seo/pages and overwrites the per-page title.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Per-page SEO on static routes", "issue": "useManagedPageSeo is defeated by useSeoSettings loading defaults after it — final document.title on /, /products, /about, /contact, /gallery, /industries, /why-choose-us, /faq is the GLOBAL site title, not the page-specific one saved in admin. Verified via network trace: both /api/seo and /api/seo/pages return 200 but defaults overwrites. Titles are only 2 unique across 9 pages (only /market-areas differs, because it uses usePageSeo directly).", "affected_selectors": ["document.title"], "priority": "HIGH"}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_seo_popup.py", "/app/test_reports/pytest/seo_popup.xml"],
+  "action_items": [
+    "Fix race condition in /app/frontend/src/hooks/useSeoSettings.js so per-page SEO wins over global defaults. Options: (a) inside loadDefaults, do NOT overwrite document.title if a page-level title has already been applied (track a `pageManagedApplied` flag similar to pageActive), or (b) in useSeoSettings, only apply defaults when no page-level SEO exists for the current pathname, or (c) always apply defaults first, then re-apply page SEO on every render/pathname change after both promises settle (Promise.all).",
+    "After fix, retest by loading /, /about, /contact etc. and confirming document.title matches values shown in admin > Page SEO tab.",
+    "Also invalidate the module-level pageSeoMap cache after admin saves (currently a user must full-reload to see saved changes on the public site since map is cached at module scope)."
+  ],
+  "critical_code_review_comments": [
+    "useSeoSettings.js: `defaults` and `pageSeoMap` are module-level singletons that never invalidate — admin edits to SEO pages will not reflect in an already-loaded SPA session; only full page reloads pick up new values.",
+    "framer-motion deprecation warning: 'motion() is deprecated. Use motion.create() instead.' — non-blocking but noisy in console.",
+    "LeadPopup uses `if (!cfg) return null;` but still renders <Dialog open={false}> once cfg is loaded; fine, no issue.",
+    "PopupSettingsPanel save sends the full config back — good.",
+    "server.py is 614 lines — approaching split threshold; consider modularising SEO/popup/enquiries routes into routers."
+  ],
+  "updated_files": ["/app/backend/tests/test_seo_popup.py"],
+  "success_rate": {"backend": "100% (7/7)", "frontend": "~85% — popup + admin all pass, per-page SEO application on frontend fails"},
+  "test_credentials": "admin@mylabelsuae.com / mylabels@1425 (unchanged)",
+  "seed_data_creation": "Created 1 enquiry via LeadPopup submit: name 'TEST_UI_Lead', email 'ui_lead@example.com', phone '+971500000001', product 'Website Popup Enquiry'. Also 1 enquiry from backend test 'TEST_PopupLead'. Cleanup optional.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "About /about site_title was mutated during testing to 'About My Labels UAE — Bespoke Labels & Packaging (TEST)' and RESTORED to default 'About Us | Dubai Printing & Packaging Manufacturer — My Labels UAE' via API. Popup delay_seconds RESET to 15. Popup enabled=True. localStorage key is 'ml_lead_popup_seen'. Backend regression suite at /app/backend/tests/test_seo_popup.py (7 tests). Auth login returns {token, user}. Admin login supported. Radix Select inside admin dropdown works on desktop but was flaky at 390px viewport (option list rendered but re-open after save was slow); confirmed independently via API. All 5 admin tabs (tab-enquiries, tab-seo, tab-page-seo, tab-popup, tab-security) are visible at 390px and the container has overflow-x-auto class.",
+  "rca of the issue": "PER-PAGE SEO NOT APPLIED — Root cause: In /app/frontend/src/hooks/useSeoSettings.js, Layout.jsx calls both useSeoSettings() (loads /api/seo defaults) and useManagedPageSeo(pathname) (loads /api/seo/pages). Both are async fetches. Each side calls applySeo() which sets document.title. There is no ordering guarantee — the defaults fetch (/api/seo) typically finishes AFTER the pages fetch (/api/seo/pages) and calls applySeo(data) with the global site_title, overwriting the page-specific one. The pageActive flag is only set by usePageSeo (dynamic detail pages), so static routes remain vulnerable. Reproduction: navigate to https://print-shop-test.preview.emergentagent.com/about → document.title == 'My Labels UAE | Printing, Labels & Apparel — Dubai, Al Ain, Fujairah, RAK' instead of the per-page title stored in /api/seo/pages. Fix: introduce a second flag e.g. `managedApplied` set inside useManagedPageSeo after applySeo, and in loadDefaults/applySeo skip document.title / description overwrite when managedApplied is true; and re-apply managed SEO on pathname change and after defaults resolves."
+}

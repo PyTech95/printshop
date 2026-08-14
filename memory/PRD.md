@@ -111,3 +111,11 @@ See /app/memory/test_credentials.md — admin@mylabelsuae.com / admin123
 - Added Admin dashboard "Security" tab -> components/ChangePasswordPanel.jsx (current/new/confirm fields, client-side match + length checks, sonner toasts)
 - Verified: backend via curl (wrong pw 400, change ok, login with new pw ok, reverted) + testing_agent iteration_17 (100% frontend pass, password left as mylabels@1425)
 - NOTE: changes are in PREVIEW only — user must REDEPLOY to apply on production (mylabelsuae.com). On first deploy the live DB admin will sync to mylabels@1425 automatically.
+
+## Full SEO + timed lead popup (2026-06)
+- Backend: GET/PUT /api/seo/pages (per-page SEO for 9 pages: Home, Products, Industries, Why Choose Us, Gallery, About, FAQ, Contact, Market Areas — each with title, meta description, keywords, OG title/description; sensible UAE defaults). GET/PUT /api/popup (enabled, delay_seconds, EN+AR headline/subtext/button). PUT routes auth-protected.
+- Admin: new "Page SEO" tab (per-page editor with page selector) and "Popup" tab (toggle/delay/EN+AR text). Tab bar made horizontally scrollable for mobile. Existing global SEO + Security tabs retained.
+- Frontend: useSeoSettings.js refactored to a single applyResolved() resolver — priority dynamic(usePageSeo) > per-page managed(useManagedPageSeo) > global defaults. Fixed a race where global defaults overwrote per-page titles. setPageSeoMap() invalidates the cache after admin saves so changes reflect without reload. Layout applies per-page SEO centrally by pathname.
+- LeadPopup.jsx: timed lead-capture popup (name/phone/email) mounted in Layout, shows after admin-configured delay (default 15s), once per visitor (localStorage ml_lead_popup_seen), radix Dialog close (X), bilingual EN/AR, responsive (w-[calc(100%-2rem)] max-w-md). Submits to /api/enquiries with product "Website Popup Enquiry".
+- Verified: iteration_18 (backend 7/7, popup+admin pass) and iteration_19 (per-page SEO fix retest: 9/9 unique titles + descriptions, SPA live update, product dynamic precedence, popup regression) — 100% frontend.
+- NOTE: preview only — REDEPLOY to push to production (mylabelsuae.com).
